@@ -1,0 +1,136 @@
+import datetime
+import random
+import re
+
+conversation = []
+name = None
+
+
+def calculate(expression):
+    try:
+        if not re.fullmatch(r"[0-9+\-*/().% ]+", expression):
+            return None
+
+        return eval(expression, {"__builtins__": {}}, {})
+
+    except:
+        return None
+
+
+def ai_response(message):
+    global name
+
+    text = message.lower().strip()
+
+    conversation.append(("You", message))
+
+    # Greetings
+    if any(word in text for word in ["hello", "hi", "hey"]):
+        answer = random.choice([
+            "Hello! How can I help you?",
+            "Hey! Pleasure to talk to you.",
+            "Hello! What would you like to know?"
+        ])
+
+    # Remember name
+    elif "my name is" in text:
+        name = message.lower().split("my name is", 1)[1].strip()
+        answer = f"Nice to meet you, {name.title()}!"
+
+    # Recall name
+    elif "what is my name" in text:
+        if name:
+            answer = f"Your name is {name.title()}."
+        else:
+            answer = "You haven't told me your name yet."
+
+    # Time
+    elif "time" in text:
+        current_time = datetime.datetime.now().strftime("%H:%M:%S")
+        answer = f"The current time is {current_time}."
+
+    # Date
+    elif "date" in text or "today" in text:
+        current_date = datetime.datetime.now().strftime("%A, %d %B %Y")
+        answer = f"Today is {current_date}."
+
+    # Calculator
+    elif text.startswith("calculate"):
+        expression = text.replace("calculate", "", 1).strip()
+
+        result = calculate(expression)
+
+        if result is not None:
+            answer = f"The answer is {result}"
+        else:
+            answer = (
+                "I couldn't calculate that. "
+                "Try something like: calculate 25 * 4"
+            )
+
+    # Python
+    elif "python" in text:
+        answer = (
+            "Python is a programming language used for "
+            "software development, automation, data science and AI."
+        )
+
+    # AI
+    elif "what are you" in text or "who are you" in text:
+        answer = (
+            "I'm a small Python AI assistant. "
+            "I'm not as powerful as ChatGPT yet, "
+            "but I'll get there soon!"
+        )
+
+    # Help
+    elif "help" in text:
+        answer = (
+            "Here are some things you can try:\n"
+            "1. Say hello\n"
+            "2. Tell me your name\n"
+            "3. Ask what your name is\n"
+            "4. Ask for the time\n"
+            "5. Ask for the date\n"
+            "6. Calculate 25 * 4\n"
+            "7. Ask about Python"
+        )
+
+    # Goodbye
+    elif text in ["bye", "goodbye", "exit"]:
+        answer = "Goodbye!"
+
+    # Unknown
+    else:
+        answer = (
+            "I'm still learning. "
+            "I don't know how to answer that yet."
+        )
+
+    conversation.append(("AI", answer))
+
+    return answer
+
+
+# ==========================
+# Titan AI
+# ==========================
+
+print("=" * 40)
+print("        MINI AI ASSISTANT")
+print("=" * 40)
+print("Type 'help' to see what I can do.")
+print("Type 'exit' to close the program.")
+print()
+
+while True:
+
+    user_input = input("You: ")
+
+    if user_input.lower().strip() == "exit":
+        print("Titan: Goodbye!")
+        break
+
+    response = ai_response(user_input)
+
+    print("Titan:", response)
